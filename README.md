@@ -11,7 +11,7 @@
 
 [Multimodal Transformer for Unaligned Multimodal Language Sequences (MulT)](https://arxiv.org/pdf/1906.00295.pdf), ACL 2019, [Github](https://github.com/yaohungt/Multimodal-Transformer)
 
-[Multimodal language analysis with recurrent multistage fusion (RMFN)] (https://www.aclweb.org/anthology/D18-1014.pdf), ACL 2018
+[Multimodal language analysis with recurrent multistage fusion (RMFN)](https://www.aclweb.org/anthology/D18-1014.pdf), ACL 2018
 
 [Adapting BERT for Target-Oriented Multimodal Sentiment Classification](https://www.ijcai.org/Proceedings/2019/0751.pdf), IJCAI 2019
 
