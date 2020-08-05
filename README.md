@@ -13,7 +13,7 @@
 
 [Adapting BERT for Target-Oriented Multimodal Sentiment Classification](https://www.ijcai.org/Proceedings/2019/0751.pdf)
 
-[M-bert: Injecting multimodal information in the bert structure](https://arxiv.org/abs/1908.05787)
+[M-bert: Injecting multimodal information in the bert structure](https://arxiv.org/abs/1908.05787), arXiv 2019
 
 [Audio ALBERT: A Lite BERT for Self-supervised Learning of Audio Representation](https://arxiv.org/abs/2005.08575)
 
