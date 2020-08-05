@@ -11,6 +11,8 @@
 
 [Multimodal Transformer for Unaligned Multimodal Language Sequences (MulT)](https://arxiv.org/pdf/1906.00295.pdf), ACL 2019, [Github](https://github.com/yaohungt/Multimodal-Transformer)
 
+[Videobert: A joint model for video and language representation learning](https://arxiv.org/pdf/1904.01766.pdf), ICCV 2019
+
 [Multimodal language analysis with recurrent multistage fusion (RMFN)](https://www.aclweb.org/anthology/D18-1014.pdf), ACL 2018
 
 [Adapting BERT for Target-Oriented Multimodal Sentiment Classification](https://www.ijcai.org/Proceedings/2019/0751.pdf), IJCAI 2019
