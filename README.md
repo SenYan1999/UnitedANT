@@ -1,4 +1,6 @@
-# MultimodalityLearning
+# Multimodal Deep Learning
+
+## Papers
 
 [Adapting BERT for Target-Oriented Multimodal Sentiment Classification](https://www.ijcai.org/Proceedings/2019/0751.pdf), IJCAI 2019
 
