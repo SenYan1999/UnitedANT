@@ -1,6 +1,8 @@
 # Multimodal Deep Learning
 
 ## Papers
+[Cross-Modal BERT for Text-Audio Sentiment Analysis](https://github.com/thuiar/Cross-Modal-BERT), MM 2020
+
 [Memory fusion network for multi-view sequential learning](https://www.aaai.org/ocs/index.php/AAAI/AAAI18/paper/viewFile/17341/16122), AAAI 2018
 
 [Tensor fusion network for multimodal sentiment analysis](https://www.aclweb.org/anthology/D17-1115.pdf), ACL 2017
