@@ -3,11 +3,15 @@
 ## Papers
 [Cross-Modal BERT for Text-Audio Sentiment Analysis](https://github.com/thuiar/Cross-Modal-BERT), MM 2020
 
-[Memory fusion network for multi-view sequential learning](https://www.aaai.org/ocs/index.php/AAAI/AAAI18/paper/viewFile/17341/16122), AAAI 2018
+[Memory fusion network for multi-view sequential learning (MFN)](https://www.aaai.org/ocs/index.php/AAAI/AAAI18/paper/viewFile/17341/16122), AAAI 2018
 
-[Tensor fusion network for multimodal sentiment analysis(TFN)](https://www.aclweb.org/anthology/D17-1115.pdf), ACL 2017
+[Tensor fusion network for multimodal sentiment analysis (TFN)](https://www.aclweb.org/anthology/D17-1115.pdf), ACL 2017
 
-[Multimodal Transformer for Unaligned Multimodal Language Sequences](https://arxiv.org/pdf/1906.00295.pdf), ACL 2019, [Github](https://github.com/yaohungt/Multimodal-Transformer)
+[Multi-attention recurrent network for human communication comprehension (MARN)](https://arxiv.org/abs/1802.00923), AAAI 2018
+
+[Multimodal Transformer for Unaligned Multimodal Language Sequences (MulT)](https://arxiv.org/pdf/1906.00295.pdf), ACL 2019, [Github](https://github.com/yaohungt/Multimodal-Transformer)
+
+[Multimodal language analysis with recurrent multistage fusion (RMFN)] (https://www.aclweb.org/anthology/D18-1014.pdf), ACL 2018
 
 [Adapting BERT for Target-Oriented Multimodal Sentiment Classification](https://www.ijcai.org/Proceedings/2019/0751.pdf), IJCAI 2019
 
