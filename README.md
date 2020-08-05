@@ -5,7 +5,7 @@
 
 [Memory fusion network for multi-view sequential learning](https://www.aaai.org/ocs/index.php/AAAI/AAAI18/paper/viewFile/17341/16122), AAAI 2018
 
-[Tensor fusion network for multimodal sentiment analysis](https://www.aclweb.org/anthology/D17-1115.pdf), ACL 2017
+[Tensor fusion network for multimodal sentiment analysis(TFN)](https://www.aclweb.org/anthology/D17-1115.pdf), ACL 2017
 
 [Multimodal Transformer for Unaligned Multimodal Language Sequences](https://arxiv.org/pdf/1906.00295.pdf), ACL 2019, [Github](https://github.com/yaohungt/Multimodal-Transformer)
 
