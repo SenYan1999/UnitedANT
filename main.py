@@ -38,16 +38,6 @@ def do_train():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # prepare model
-    audio_options = {
-        'ckpt_file'     : './pretrained_model/states-1500000.ckpt',
-        'load_pretrain' : 'True',
-        'no_grad'       : 'True',
-        'dropout'       : 'default',
-        'spec_aug'      : 'False',
-        'spec_aug_prev' : 'True',
-        'weighted_sum'  : 'False',
-        'select_layer'  : -1,
-    }
     model = MultimodalityModel(args.longformer_name, args.audio_dim, args.hidden_size, args.num_layers,\
          args.n_head, args.table_in_dim, args.table_out_dim, args.drop_out, device)
     model = model.to(device)
