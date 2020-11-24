@@ -1,8 +1,19 @@
 # UnitedANT
 This is the code for [UnitedANT]() model.
 
-## Dataset
-Download data from [here](), and unzip it at the root directory of this repo.
+## About the Data
+Download data from [here](), and unzip it at the root directory of this repo. The data are processed based on this [dataset](https://github.com/GeminiLn/EarningsCall_Dataset) which provides the acoustic and textual data, and we use OpenSMILE to extract the acoustic feature. The numeric data are from [CRSP](http://www.crsp.org/).
+
+## Prepare Data
+```python
+python main.py --do_prepare
+```
+
+## Train Model
+```python
+python main.py --do_train --batch_size 4 --tau [tau]
+```
+where **[tau]** is the size of the window which is in [3, 7, 15, 30].
 
 ## Reference
 [Cross-Modal BERT for Text-Audio Sentiment Analysis](https://github.com/thuiar/Cross-Modal-BERT), MM 2020
