@@ -7,7 +7,7 @@ try:
     from apex import amp
 except:
     pass
-from .AudioEncoder import MockingjayEncoder
+from .AudioEncoder import BiLSTMEncoder
 from .TextEncoder import LongformerEncoder
 from .SelfAttention import MultiHeadAttention
 
@@ -22,23 +22,29 @@ def load_audio_data(audio_files):
     for i in range(len(audios)):
         audio = audios[i]
         assert len(audio.shape) == 2
-        pad = torch.zeros(max_len - audio.shape[0], audio.shape[1])
-        audio = torch.cat([audio, pad], dim=0)
+        if max_len - audio.shape[0] > 0:
+            pad = torch.zeros(max_len - audio.shape[0], audio.shape[1])
+            audio = torch.cat([audio, pad], dim=0)
+        else:
+            audio = audio[:max_len, :]
         audios[i] = audio.unsqueeze(dim=0)
     
     audios = torch.cat(audios, dim=0)
 
     return audios
 
+tau2input = {3: 3, 7: 4, 15: 5, 30: 6}
+tau2pred = {3: 7, 7: 8, 15: 9, 30: 10}
+
 class MultimodalityModel(nn.Module):
-    def __init__(self, longformer_name, audio_options, table_in, table_out, device):
+    def __init__(self, longformer_name, audio_dim, hidden_size, num_layers, n_head, table_in, table_out, drop_out, device):
         super(MultimodalityModel, self).__init__()
         # state
         self.device = device
 
         # layers
-        self.text_encoder = LongformerEncoder(longformer_name)
-        self.audio_encoder = MockingjayEncoder(audio_options)
+        self.text_encoder = LongformerEncoder(longformer_name, n_head=n_head, d_model=768, p_dropout=drop_out)
+        self.audio_encoder = BiLSTMEncoder(audio_dim, hidden_size, num_layers, dropout=drop_out, atten_head=n_head)
         self.table_encoder = nn.Linear(table_in, table_out)
 
         concat_dim = 768 + 768 + table_out
@@ -47,12 +53,12 @@ class MultimodalityModel(nn.Module):
             nn.ReLU(),
             nn.Linear(concat_dim // 2, concat_dim // 4),
             nn.ReLU(),
-            nn.Linear(concat_dim // 4, 3)
+            nn.Linear(concat_dim // 4, 1)
         )
     
     def forward(self, text_input, audio_input, tabular_input):
         # text embedding
-        _, text_embedding = self.text_encoder(text_input)
+        text_embedding = self.text_encoder(text_input)
 
         # audio embedding
         audio_embedding = self.audio_encoder(audio_input)
@@ -68,63 +74,51 @@ class MultimodalityModel(nn.Module):
 
         return pred
     
-    def update(self, batch, optimizer, fp16=False):
+    def update(self, batch, optimizer, tau=3, fp16=False):
         # build the batch
         audio_files = [audio for audio in batch[2]]
         audios_input = load_audio_data(audio_files)
 
         batch_input = {'text_input': batch[1].to(self.device),
                        'audio_input': audios_input.to(self.device),
-                       'table_input': batch[3].to(self.device),
-                       'true_three': batch[4].to(self.device),
-                       'true_seven': batch[5].to(self.device),
-                       'true_thirty': batch[6].to(self.device)}
+                       'table_input': batch[tau2input[tau]].unsqueeze(dim=1).to(self.device),
+                       'table_pred': batch[tau2pred[tau]].unsqueeze(dim=1).to(self.device)}
 
 
         pred = self(batch_input['text_input'], batch_input['audio_input'], batch_input['table_input'])
-        print(pred.shape)
 
-        loss_three, loss_seven, loss_thirty = F.mse_loss(pred[:, 0], batch_input['true_three']), \
-                                              F.mse_loss(pred[:, 1], batch_input['true_seven']), \
-                                              F.mse_loss(pred[:, 2], batch_input['true_thirty'])
-        loss_total = loss_three + loss_seven + loss_thirty
+        loss = F.mse_loss(pred, batch_input['table_pred'])
 
         if fp16:
             try:
-                with amp.scale_loss(loss_total, optimizer) as loss:
+                with amp.scale_loss(loss, optimizer) as loss:
                     loss.backward(retain_graph=True)
             except:
                 pass
         else:
-            loss_total.backward()
+            loss.backward()
         
         optimizer.step()
         optimizer.zero_grad()
 
-        return loss_three.item(), loss_seven.item(), loss_thirty.item()
+        return loss.item()
 
-    def evaluate(self, dev_dataloader):
-        mse_three, mse_seven, mse_thirty = [], [], []
+    def evaluate(self, dev_dataloader, tau=3):
+        mse = []
         for batch in dev_dataloader:
             # build the batch
-            audio_files = [b[2] for b in batch]
-            audios_input = [a.to(self.device) for a in load_audio_data(audio_files)]
+            audio_files = [b for b in batch[2]]
+            audios_input = load_audio_data(audio_files)
 
-            batch_input = {'text_input': batch_input[1].to(self.device),
-                           'audio_input': audios_input,
-                           'able_input': batch_input[3].to(self.device),
-                           'true_three': batch_input[4].to(self.device),
-                           'true_seven': batch_input[5].to(self.device),
-                           'true_thirty': batch_input[6].to(self.device)}
+            batch_input = {'text_input': batch[1].to(self.device),
+                           'audio_input': audios_input.to(self.device),
+                           'table_input': batch[tau2input[tau]].unsqueeze(dim=1).to(self.device),
+                           'table_pred': batch[tau2pred[tau]].unsqueeze(dim=1).to(self.device)}
 
             pred = self(batch_input['text_input'], batch_input['audio_input'], batch_input['table_input'])
 
-            loss_three, loss_seven, loss_thirty = F.mse_loss(pred[:, 0], batch['true_three']), \
-                                                F.mse_loss(pred[:, 1], batch['true_seven']), \
-                                                F.mse_loss(pred[:, 2], batch['true_thirty'])
-            mse_three.append(loss_three)
-            mse_seven.append(loss_seven)
-            mse_thirty.append(loss_thirty)
+            loss = F.mse_loss(pred, batch_input['table_pred'])
+            mse.append(loss.item())
 
-        return mse_three, mse_seven, mse_thirty
+        return mse
         

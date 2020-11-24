@@ -27,7 +27,7 @@ def do_prepare():
 def do_train():
     # prepare dataset
     print('loading train data...')
-    train_dataset = torch.load(args.dev_dataset)
+    train_dataset = torch.load(args.train_dataset)
     train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size)
 
     print('loading dev data...')
@@ -48,7 +48,8 @@ def do_train():
         'weighted_sum'  : 'False',
         'select_layer'  : -1,
     }
-    model = MultimodalityModel(args.longformer_name, audio_options, args.table_in_dim, args.table_out_dim, device)
+    model = MultimodalityModel(args.longformer_name, args.audio_dim, args.hidden_size, args.num_layers,\
+         args.n_head, args.table_in_dim, args.table_out_dim, args.drop_out, device)
     model = model.to(device)
 
     # prepare optimizer
@@ -57,7 +58,7 @@ def do_train():
     # apex distributed training
     # to be continue
 
-    trainer = Trainer(train_dataloader, dev_dataloader, model, optimizer, device, args.fp16)
+    trainer = Trainer(train_dataloader, dev_dataloader, model, optimizer, device, args.tau, args.fp16)
     trainer.train(args.num_epoch, args.save_path)
 
 if __name__ == "__main__":

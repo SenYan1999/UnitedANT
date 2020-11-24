@@ -6,7 +6,7 @@ import os
 from tqdm import tqdm
 
 class Trainer:
-    def __init__(self, train_dataloader, dev_dataloader, model, optimizer, device, fp16=False):
+    def __init__(self, train_dataloader, dev_dataloader, model, optimizer, device, tau, fp16=False):
         self.train_data = train_dataloader
         self.dev_data = dev_dataloader
         self.model = model
@@ -15,6 +15,7 @@ class Trainer:
         self.fp16 = fp16
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.tau = tau
         self.model.to(self.device)
 
     def train_epoch(self, epoch):
@@ -22,32 +23,40 @@ class Trainer:
         self.model.train()
 
         total_step = len(self.train_data)
-        mses = [[], [], []]
+        all_mse = []
+        pbar = tqdm(total=len(self.train_data))
         for step, batch in enumerate(self.train_data):
             # process batch
-            mse = self.model.update(batch, self.optimizer, self.fp16)
-            mses[0].append(mse[0])
-            mses[1].append(mse[1])
-            mses[2].append(mse[2])
+            mse = self.model.update(batch, self.optimizer, self.tau, self.fp16)
+            all_mse.append(mse)
 
-            if step == 0 or total_step % step == 0:
-                print(f'Epoch: {epoch} | 3 MSE: {mse[0]} | 7 MSE: {mse[1]} | 30 MSE: {mse[2]}')
+            pbar.set_description(f'Epoch: {epoch} | {self.tau} MSE: {mse: 1.2f}')
+            pbar.update(1)
+        pbar.close()
 
-        print(f'Epoch: {epoch} | 3 MSE: {np.mean(mses[0])} | 7 MSE: {np.mean(mses[1])} | 30 MSE: {np.mean(mses[2])}')
+        print('-------------------------------TRAIN RESULT-------------------------------')
+        print(f'Epoch: {epoch} | {self.tau} MSE: {np.mean(all_mse):1.2f}')
 
     def evaluate_epoch(self, epoch):
         # step1: eval p model
         print('Epoch %2d: Evaluating Model...' % epoch)
         self.model.eval()
 
-        mse_three, mse_seven, mse_thirty = self.model.evaluate(self.dev_data)
-        print(f'Epoch: {epoch} | 3 MSE: {np.mean(mse_three)} | 7 MSE: {np.mean(mse_seven)} | 30 MSE: {np.mean(mse_thirty)}')
+        mse = self.model.evaluate(self.dev_data, self.tau)
+        print('-------------------------------Evaluate RESULT-------------------------------')
+        print(f'Epoch: {epoch} | {self.tau} MSE: {np.mean(mse):1.2f}')
+
+        return mse
 
 
     def train(self, num_epoch, save_path):
+        best_mse = 1e10
         for epoch in range(num_epoch):
             self.train_epoch(epoch)
-            self.evaluate_epoch(epoch)
+            mse = self.evaluate_epoch(epoch)
+
+            best_mse = min(best_mse, mse)
+            print('Now best mse is %.2f' % best_mse)
 
             # save state dict
             path = os.path.join(save_path, 'state_%d_epoch.pt' % epoch)

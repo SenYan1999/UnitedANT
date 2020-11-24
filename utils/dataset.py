@@ -20,7 +20,9 @@ class MultimodalityDataset(Dataset):
     def process_raw_data(self, min_date, max_date):
         all_corps = os.listdir(self.audio_dir)
         all_corps = [corp[0:-4] for corp in all_corps]
-        ids, sents, audios, tables, y_three, y_seven, y_thirty = [], [], [], [], [], [], []
+        ids, sents, audios, tables = [], [], [], []
+        y_three_before, y_seven_before, y_fifteen_before, y_thirty_before = [], [], [], []
+        y_three_after, y_seven_after, y_fifteen_after, y_thirty_after = [], [], [], []
 
         for corp in tqdm(all_corps):
             data_slice = ()
@@ -56,12 +58,12 @@ class MultimodalityDataset(Dataset):
 
             # table data
             try:
-                data_slice = self.table[(self.table['PERMNO'] == idx) & (self.table['date'] == int(date))]
-                three_days, seven_days, thirty_days = float(data_slice['after_3_days_vol']), \
-                    float(data_slice['after_7_days_vol']), float(data_slice['after_30_days_vol'])
-                all_ten_retx = []
-                for i in range(1, 11):
-                    all_ten_retx.append(float(data_slice[f'retx_before_{i}']))
+                date = str(int(str(date)[:4])) + '/' + str(int(str(date)[4:6])) + '/' + str(int(str(date)[6:]))
+                data_slice = self.table[(self.table['permno'] == idx) & (self.table['date'] == date)]
+                before_three_days, before_seven_days, before_fifteen_days, before_thirty_days = float(data_slice['vol_before3']), \
+                    float(data_slice['vol_before7']), float(data_slice['vol_before15']), float(data_slice['vol_before30'])
+                after_three_days, after_seven_days, after_fifteen_days, after_thirty_days = float(data_slice['vol_after3']), \
+                    float(data_slice['vol_after7']), float(data_slice['vol_after15']), float(data_slice['vol_after30'])
             except:
                 print(f'No table data for corp: {corp} and idx: {idx}')
                 continue
@@ -69,19 +71,28 @@ class MultimodalityDataset(Dataset):
             ids.append(idx)
             sents.append(doc_idx)
             audios.append(audio)
-            tables.append(all_ten_retx)
-            y_three.append(three_days)
-            y_seven.append(seven_days)
-            y_thirty.append(thirty_days)
+            y_three_before.append(before_three_days)
+            y_seven_before.append(before_seven_days)
+            y_fifteen_before.append(before_fifteen_days)
+            y_thirty_before.append(before_thirty_days)
+            y_three_after.append(after_three_days)
+            y_seven_after.append(after_seven_days)
+            y_fifteen_after.append(after_fifteen_days)
+            y_thirty_after.append(after_thirty_days)
         
         ids = torch.LongTensor(ids)
         sents = torch.LongTensor(sents)
-        tables = torch.FloatTensor(tables)
-        y_three = torch.FloatTensor(y_three)
-        y_seven = torch.FloatTensor(y_seven)
-        y_thirty = torch.FloatTensor(y_thirty)
+        y_three_before = torch.FloatTensor(y_three_before)
+        y_seven_before = torch.FloatTensor(y_seven_before)
+        y_fifteen_before = torch.FloatTensor(y_fifteen_before)
+        y_thirty_before = torch.FloatTensor(y_thirty_before)
+        y_three_after = torch.FloatTensor(y_three_after)
+        y_seven_after = torch.FloatTensor(y_seven_after)
+        y_fifteen_after = torch.FloatTensor(y_fifteen_after)
+        y_thirty_after = torch.FloatTensor(y_thirty_after)
 
-        return (ids, sents, audios, tables, y_three, y_seven, y_thirty)
+        return (ids, sents, audios, y_three_before, y_seven_before, y_fifteen_before, y_thirty_before, \
+            y_three_after, y_seven_after, y_fifteen_after, y_thirty_after)
 
     def __getitem__(self, index):
         out = ()
@@ -90,4 +101,4 @@ class MultimodalityDataset(Dataset):
         return out
     
     def __len__(self):
-        return len(self.data)
+        return self.data[0].shape[0]
