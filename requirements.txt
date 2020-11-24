@@ -1,3 +1,5 @@
-pydub
-soundfile
-fairseq
+torch
+pandas
+transformers
+tqdm
+numpy
