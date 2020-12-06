@@ -43,3 +43,5 @@ where **[tau]** is the size of the window which is in [3, 7, 15, 30].
 [Look, Listen, and Attend: Co-Attention Network for Self-Supervised Audio-Visual Representation Learning](https://arxiv.org/pdf/2008.05789.pdf), arXiv 2020
 
 [Improved Fusion of Visual and Language Representations by Dense Symmetric Co-Attention for Visual Question Answering](https://arxiv.org/pdf/1804.00775.pdf), arXiv 2018
+
+[Audio Sentiment Analysis by Heterogeneous Signal Features Learned from Utterance-Based Parallel Neural Network](http://ceur-ws.org/Vol-2328/3_2_paper_17.pdf), arXiv 2019
